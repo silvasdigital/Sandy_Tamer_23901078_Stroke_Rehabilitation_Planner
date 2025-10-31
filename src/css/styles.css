@@ -1,0 +1,302 @@
+/* Import Leaflet's CSS */
+@import 'leaflet/dist/leaflet.css';
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+:root {
+  --bg-color: #f4f7f9;
+  --card-bg: #ffffff;
+  --text-color: #333;
+  --primary-color: #007bff;
+  --border-color: #e0e0e0;
+  --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  --risk-low-bg: #e7f5ec;
+  --risk-low-text: #1e8755;
+  --risk-mid-bg: #fff8e1;
+  --risk-mid-text: #f59c00;
+  --risk-high-bg: #fbe9e7;
+  --risk-high-text: #d9534f;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+header h1 {
+  margin: 0;
+  color: var(--primary-color);
+}
+
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  margin-bottom: 20px;
+}
+
+.card h2 {
+  margin-top: 0;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card ul li {
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.card ul li:last-child {
+  border-bottom: none;
+}
+
+/* This is the map container. It MUST have a height. */
+#map {
+  height: 50vh; /* 50% of the viewport height */
+  width: 100%;
+  border-radius: 8px;
+  z-index: 0; /* Ensures map is behind popups */
+}
+
+/* Flexbox wrapper for centering cards */
+.card-deck {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.card-deck .card {
+  flex-basis: 320px;
+  flex-grow: 1;
+  max-width: 580px; /* Allow info card to be wider */
+  min-width: 300px;
+  margin-bottom: 0;
+}
+
+/* Controls Card */
+.controls .button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.controls button {
+  padding: 12px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+  background-color: var(--primary-color);
+  transition: background-color 0.2s;
+  font-size: 1rem;
+}
+.controls button:hover {
+  background-color: #0056b3;
+}
+
+/* Chart Container */
+.chart-container {
+  margin-top: 20px;
+  position: relative;
+  width: 100%;
+}
+
+/* Risk level text styling */
+#comm-risk {
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.risk-low {
+  background-color: var(--risk-low-bg);
+  color: var(--risk-low-text);
+}
+.risk-mid {
+  background-color: var(--risk-mid-bg);
+  color: var(--risk-mid-text);
+}
+.risk-high {
+  background-color: var(--risk-high-bg);
+  color: var(--risk-high-text);
+}
+/* Import Leaflet's CSS */
+@import 'leaflet/dist/leaflet.css';
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+:root {
+  --bg-color: #f4f7f9;
+  --card-bg: #ffffff;
+  --text-color: #333;
+  --primary-color: #007bff;
+  --border-color: #e0e0e0;
+  --shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  --risk-low-bg: #e7f5ec;
+  --risk-low-text: #1e8755;
+  --risk-mid-bg: #fff8e1;
+  --risk-mid-text: #f59c00;
+  --risk-high-bg: #fbe9e7;
+  --risk-high-text: #d9534f;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+header h1 {
+  margin: 0;
+  color: var(--primary-color);
+}
+
+main {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  margin-bottom: 20px;
+}
+
+.card h2 {
+  margin-top: 0;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card ul li {
+  padding: 10px 0;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.card ul li:last-child {
+  border-bottom: none;
+}
+
+/* This is the map container. It MUST have a height. */
+#map {
+  height: 50vh; /* 50% of the viewport height */
+  width: 100%;
+  border-radius: 8px;
+  z-index: 0; /* Ensures map is behind popups */
+}
+
+/* Flexbox wrapper for centering cards */
+.card-deck {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.card-deck .card {
+  flex-basis: 320px;
+  flex-grow: 1;
+  max-width: 580px; /* Allow info card to be wider */
+  min-width: 300px;
+  margin-bottom: 0;
+}
+
+/* Controls Card */
+.controls .button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.controls button {
+  padding: 12px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  color: white;
+  background-color: var(--primary-color);
+  transition: background-color 0.2s;
+  font-size: 1rem;
+}
+.controls button:hover {
+  background-color: #0056b3;
+}
+
+/* Chart Container */
+.chart-container {
+  margin-top: 20px;
+  position: relative;
+  width: 100%;
+}
+
+/* Risk level text styling */
+#comm-risk {
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+.risk-low {
+  background-color: var(--risk-low-bg);
+  color: var(--risk-low-text);
+}
+.risk-mid {
+  background-color: var(--risk-mid-bg);
+  color: var(--risk-mid-text);
+}
+.risk-high {
+  background-color: var(--risk-high-bg);
+  color: var(--risk-high-text);
+}
