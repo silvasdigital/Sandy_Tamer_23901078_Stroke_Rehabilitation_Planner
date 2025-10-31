@@ -1,5 +1,5 @@
 {
-  "name": "Community_Health_Risk_Mapper",
+  "name": "stroke-rehabilitation-planer",
   "version": "1.0.0",
   "description": "student project",
   "main": "index.js",
@@ -32,7 +32,6 @@
     "webpack-merge": "^5.10.0"
   },
   "dependencies": {
-    "chart.js": "^4.4.3",
-    "leaflet": "^1.9.4"
+    "chart.js": "^4.4.3"
   }
 }

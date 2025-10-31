@@ -1,148 +1,126 @@
 import '../css/styles.css';
-import 'leaflet/dist/leaflet.css'; // We must import the CSS
 import Chart from 'chart.js/auto';
-import L from 'leaflet';
 
-// --- MOCK COMMUNITY DATA ---
-const communityData = {
-  communityA: {
-    name: 'Sunrise Valley',
-    coords: [25.79, -80.22], // Miami Area
-    population: 12500,
-    riskLevel: 'Low',
-    riskClass: 'risk-low',
-    riskColor: '#1e8755',
-    metrics: { 'Air Quality (AQI)': 30, 'Park Access (%)': 85, 'Clinic Density': 90 }
+// --- MOCK REHAB DATA ---
+const rehabData = {
+  mild: {
+    profile: 'Mild Stroke Impairment',
+    summary: 'Focus: Regaining fine motor skills and high-level balance. Independent in daily living.',
+    statusClass: 'status-mild',
+    therapyHours: { Physical: 3, Occupational: 5, Speech: 2 },
+    weeklyPlan: [
+      '<strong>Mon:</strong> Occupational Therapy (AM)',
+      '<strong>Tue:</strong> Physical Therapy (AM)',
+      '<strong>Wed:</strong> Speech Therapy (AM)',
+      '<strong>Thu:</strong> Occupational Therapy (AM)',
+      '<strong>Fri:</strong> Physical Therapy (AM) & Occupational Therapy (PM)'
+    ]
   },
-  communityB: {
-    name: 'Downtown Core',
-    coords: [25.77, -80.19], // Miami Downtown
-    population: 45000,
-    riskLevel: 'Medium',
-    riskClass: 'risk-mid',
-    riskColor: '#f59c00',
-    metrics: { 'Air Quality (AQI)': 75, 'Park Access (%)': 40, 'Clinic Density': 60 }
+  moderate: {
+    profile: 'Moderate Stroke Impairment',
+    summary: 'Focus: Regaining mobility and self-care skills. Moderate assist needed.',
+    statusClass: 'status-moderate',
+    therapyHours: { Physical: 6, Occupational: 6, Speech: 4 },
+    weeklyPlan: [
+      '<strong>Mon:</strong> Physical Therapy (AM), Occupational Therapy (PM)',
+      '<strong>Tue:</strong> Speech Therapy (AM), Physical Therapy (PM)',
+      '<strong>Wed:</strong> Occupational Therapy (AM)',
+      '<strong>Thu:</strong> Physical Therapy (AM), Speech Therapy (PM)',
+      '<strong>Fri:</strong> Physical Therapy (AM), Occupational Therapy (PM)'
+    ]
   },
-  communityC: {
-    name: 'Ironwood District',
-    coords: [25.75, -80.2], // Near industrial
-    population: 22000,
-    riskLevel: 'High',
-    riskClass: 'risk-high',
-    riskColor: '#d9534f',
-    metrics: { 'Air Quality (AQI)': 120, 'Park Access (%)': 15, 'Clinic Density': 25 }
+  severe: {
+    profile: 'Severe Stroke Impairment',
+    summary: 'Focus: Basic mobility, swallowing, and communication. High level of care required.',
+    statusClass: 'status-severe',
+    therapyHours: { Physical: 8, Occupational: 5, Speech: 7 },
+    weeklyPlan: [
+      '<strong>Mon:</strong> Physical Therapy (AM), Speech Therapy (PM)',
+      '<strong>Tue:</strong> Occupational Therapy (AM), Physical Therapy (PM)',
+      '<strong>Wed:</strong> Speech Therapy (AM), Physical Therapy (PM)',
+      '<strong>Thu:</strong> Occupational Therapy (AM), Speech Therapy (PM)',
+      '<strong>Fri:</strong> Physical Therapy (AM), Speech Therapy (PM)'
+    ]
   }
 };
 
 // --- DOM ELEMENT SELECTORS ---
 const elements = {
-  commName: document.getElementById('comm-name'),
-  commRisk: document.getElementById('comm-risk'),
-  commPop: document.getElementById('comm-pop'),
-  btnCommA: document.getElementById('btn-comm-a'),
-  btnCommB: document.getElementById('btn-comm-b'),
-  btnCommC: document.getElementById('btn-comm-c')
+  statusCard: document.getElementById('status-card'),
+  patientProfile: document.getElementById('patient-profile'),
+  planSummary: document.getElementById('plan-summary'),
+  weeklyPlanList: document.getElementById('weekly-plan-list'),
+  btnMild: document.getElementById('btn-mild'),
+  btnModerate: document.getElementById('btn-moderate'),
+  btnSevere: document.getElementById('btn-severe')
 };
 
-// --- STATE ---
-let map;
-let metricsChart;
-let currentRiskCircle;
+let therapyChart; // To hold the chart instance
 
 // --- FUNCTIONS ---
 
 /**
- * Initializes the Leaflet map on page load.
+ * Updates the entire dashboard with data from a rehab plan object.
+ * @param {object} plan - The rehab plan data object.
  */
-function initMap() {
-  map = L.map('map').setView([25.774, -80.2], 12); // Center on Miami
+function updateDashboard(plan) {
+  // 1. Update the status card
+  elements.statusCard.className = `card ${plan.statusClass}`;
+  elements.patientProfile.textContent = plan.profile;
+  elements.planSummary.textContent = plan.summary;
 
-  // Add the base map tile layer (OpenStreetMap)
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
+  // 2. Update the Weekly Plan list
+  elements.weeklyPlanList.innerHTML = ''; // Clear old plan
+  plan.weeklyPlan.forEach((item) => {
+    const li = document.createElement('li');
+    li.innerHTML = item;
+    elements.weeklyPlanList.appendChild(li);
+  });
+
+  // 3. Update the Bar Chart
+  updateChart(plan.therapyHours);
 }
 
 /**
- * Updates the entire dashboard with data from a community object.
- * @param {object} community - The community data object.
+ * Creates or updates the therapy hours bar chart.
+ * @param {object} hours - The therapy hours data.
  */
-function updateDashboard(community) {
-  // 1. Update the info card details
-  elements.commName.textContent = community.name;
-  elements.commRisk.textContent = community.riskLevel;
-  elements.commPop.textContent = community.population.toLocaleString();
+function updateChart(hours) {
+  const ctx = document.getElementById('therapyChart').getContext('2d');
+  const labels = Object.keys(hours);
+  const data = Object.values(hours);
 
-  // Update risk class for styling
-  elements.commRisk.className = community.riskClass;
-
-  // 2. Update the map view
-  map.flyTo(community.coords, 14); // Zoom in on the community
-
-  // Remove the previous risk circle if it exists
-  if (currentRiskCircle) {
-    currentRiskCircle.remove();
-  }
-
-  // Add a new circle representing the risk
-  currentRiskCircle = L.circle(community.coords, {
-    color: community.riskColor, // Border color
-    fillColor: community.riskColor, // Fill color
-    fillOpacity: 0.3,
-    radius: 1200 // Radius in meters
-  })
-    .addTo(map)
-    .bindPopup(`<b>${community.name}</b><br>Risk: ${community.riskLevel}`)
-    .openPopup();
-
-  // 3. Update the bar chart
-  updateChart(community.metrics);
-}
-
-/**
- * Creates or updates the risk metrics bar chart.
- * @param {object} metrics - The metrics data for the community.
- */
-function updateChart(metrics) {
-  const ctx = document.getElementById('metricsChart').getContext('2d');
-  const labels = Object.keys(metrics);
-  const data = Object.values(metrics);
-
-  if (metricsChart) {
-    metricsChart.data.labels = labels;
-    metricsChart.data.datasets[0].data = data;
-    metricsChart.update();
+  if (therapyChart) {
+    therapyChart.data.labels = labels;
+    therapyChart.data.datasets[0].data = data;
+    therapyChart.update();
   } else {
-    metricsChart = new Chart(ctx, {
-      type: 'bar',
+    therapyChart = new Chart(ctx, {
+      type: 'bar', // Horizontal bar chart
       data: {
         labels: labels,
         datasets: [
           {
-            label: 'Risk Factor Score (Higher is worse for AQI)',
+            label: 'Hours per Week',
             data: data,
-            backgroundColor: [
-              'rgba(217, 83, 79, 0.6)', // Red for AQI
-              'rgba(30, 135, 85, 0.6)', // Green for Parks
-              'rgba(0, 123, 255, 0.6)' // Blue for Clinics
-            ],
-            borderColor: ['rgba(217, 83, 79, 1)', 'rgba(30, 135, 85, 1)', 'rgba(0, 123, 255, 1)'],
+            backgroundColor: ['rgba(0, 123, 255, 0.6)', 'rgba(30, 135, 85, 0.6)', 'rgba(245, 156, 0, 0.6)'],
+            borderColor: ['rgba(0, 123, 255, 1)', 'rgba(30, 135, 85, 1)', 'rgba(245, 156, 0, 1)'],
             borderWidth: 1
           }
         ]
       },
       options: {
+        indexAxis: 'y', // This makes the bar chart horizontal
         responsive: true,
-        indexAxis: 'y', // Create a horizontal bar chart
         scales: {
           x: {
             beginAtZero: true,
-            max: 150 // Set a max for AQI
+            max: 10 // Set a max of 10 hours
           }
         },
         plugins: {
           legend: {
-            display: false
+            display: false // Hide the legend
           }
         }
       }
@@ -152,14 +130,11 @@ function updateChart(metrics) {
 
 // --- EVENT LISTENERS ---
 document.addEventListener('DOMContentLoaded', () => {
-  // Initialize the map first
-  initMap();
+  // Load the moderate profile by default
+  updateDashboard(rehabData.moderate);
 
-  // Load Community A by default
-  updateDashboard(communityData.communityA);
-
-  // Set up buttons
-  elements.btnCommA.addEventListener('click', () => updateDashboard(communityData.communityA));
-  elements.btnCommB.addEventListener('click', () => updateDashboard(communityData.communityB));
-  elements.btnCommC.addEventListener('click', () => updateDashboard(communityData.communityC));
+  // Set up buttons to load different scenarios
+  elements.btnMild.addEventListener('click', () => updateDashboard(rehabData.mild));
+  elements.btnModerate.addEventListener('click', () => updateDashboard(rehabData.moderate));
+  elements.btnSevere.addEventListener('click', () => updateDashboard(rehabData.severe));
 });
